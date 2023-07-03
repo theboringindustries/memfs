@@ -1,0 +1,9 @@
+{
+  "name": "fs",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "bun-types": "^0.6.12"
+  }
+}
