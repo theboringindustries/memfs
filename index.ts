@@ -6,7 +6,7 @@ import {
   removeNode,
   TNode,
   TTree,
-} from "./tree";
+} from "./constant";
 
 let tree = makeTree();
 
@@ -49,12 +49,11 @@ const _write = (path: string, content: any, root: TTree<any> = tree) => {
   }
 
   try {
-    const target = findNode(root, [
-      (n: TNode<any>) => n.value?.name === parsed[0],
-    ]);
+    const target = findNode(root, [parsed[0]]);
 
     return addNode(
-      removeNode(root, (n: TNode<any>) => n.value.name !== parsed[0]),
+      removeNode(root, parsed[0]),
+      parsed[0],
       write(parsed.slice(1).join("/"), content, target)
     );
   } catch (e) {
@@ -62,33 +61,29 @@ const _write = (path: string, content: any, root: TTree<any> = tree) => {
       ? makeFile(parsed[0], content)
       : makeFolder(parsed[0]);
 
-    return write(parsed.join("/"), content, addNode(root, makeNode(value)));
+    return write(
+      parsed.join("/"),
+      content,
+      addNode(root, parsed[0], makeNode(value))
+    );
   }
 };
 
-const read = (path) => {
-  return findNode(
-    tree,
-    path
-      .split("/")
-      .filter(Boolean)
-      .map((key: string) => (n: TFSNode) => n.value?.name === key)
-  ).value.content;
+const read = (path: string) => {
+  return findNode(tree, path.split("/").filter(Boolean)).value.content;
 };
 
 const _remove = (path: any, root: any = tree) => {
   const parsed = path.split("/").filter(Boolean);
 
   if (parsed.length === 1) {
-    return removeNode(root, (n: TNode<any>) => n.value.name !== parsed[0]);
+    return removeNode(root, parsed[0]);
   }
 
   return addNode(
-    removeNode(root, (n: TNode<any>) => n.value.name !== parsed[0]),
-    remove(
-      parsed.slice(1).join("/"),
-      findNode(root, [(n: TNode<any>) => n.value.name === parsed[0]])
-    )
+    removeNode(root, parsed[0]),
+    parsed[0],
+    remove(parsed.slice(1).join("/"), findNode(root, [parsed[0]]))
   );
 };
 
